@@ -1,0 +1,91 @@
+
+
+sudo chmod a+rw /dev/ttyUSB0
+
+28188b6a0900005a:22.4
+284d6a6b09000007:22.0
+
+
+device number= 0
+*** tiempos_getTempC 
+23166680
+23179132
+diferencia t: 12452
+28188b6a0900005a:23.6
+
+
+
+Conclusiones de las pruebas:
+============================
+Es posible conseguir que todas las operaciones SEPARADAS para la lectrura de Temperaturas esten por **debajo de 14 ms**
+    No se detectarían algunos pulsos con duraciones menores a 15 ms
+Se puede guardar las direcciones de las 18b20 en arrais al inicio, cob una funcion de copia
+    La funcion al inicio sería:     getAddress()
+    La direccion donde se guarda:   uint8_t deviceAddressDest0[8];
+    La fonción de copia:            copiaDevice(tempDeviceAddress, deviceAddressDest0)
+    
+Printout del programa:
+
+Inicio del microcontrolador. Prueba de tiempos
+'''
+******Print LCD - sgs: 11
+**** buildTemperatureMessage_ 0
+numberOfDevices = 0
+*** tiempos_requestTemperatures
+11112784
+11115048
+11115048
+diferencia requestTemperatures(): 2264
+diferencia getDeviceCount: 0
+
+**** buildTemperatureMessage_ 1
+numberOfDevices = 0
+*** tiempos_requestTemperatures
+12125632
+12127720
+12127724
+diferencia requestTemperatures(): 2088
+diferencia getDeviceCount: 4
+
+**** buildTemperatureMessage_ 2
+numberOfDevices = 0
+*** tiempos_requestTemperatures
+13138300
+13140392
+13140392
+diferencia requestTemperatures(): 2092
+diferencia getDeviceCount: 0
+
+**** buildTemperatureMessage_ 3
+numberOfDevices = 2
+*** tiempos_requestTemperatures
+14150976
+14153064
+14153068
+diferencia requestTemperatures(): 2088
+diferencia getDeviceCount: 4
+*** tiempos_getAddress 
+14163484
+14178464
+diferencia t: 14980
+device number= 0
+*** tiempos_getTempC 
+14179884
+14192600
+diferencia t: 12716
+28188b6a0900005a
+28188b6a0900005a:22.2
+*** tiempos_getAddress 
+14198084
+14227464
+diferencia t: 29380
+device number= 1
+*** tiempos_getTempC 
+14228888
+14241592
+diferencia t: 12704
+284d6a6b09000007
+284d6a6b09000007:21.9
+28188b6a0900005a:22.2,284d6a6b09000007:21.9
+******Print LCD - sgs: 20
+'''

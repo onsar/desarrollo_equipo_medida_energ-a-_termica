@@ -3,10 +3,10 @@
 
 #define BPS 115200
 
-#define ONE_WIRE_BUS_0 14 // A0
-#define ONE_WIRE_BUS_1 15 // A1
-#define ONE_WIRE_BUS_2 16 // A2
-#define ONE_WIRE_BUS_3 17 // A3
+#define ONE_WIRE_BUS_0 17 // A3
+#define ONE_WIRE_BUS_1 18 // A4
+#define ONE_WIRE_BUS_2 19 // A5
+
 
 // Lower resolution
 #define TEMPERATURE_PRECISION 9
@@ -28,29 +28,41 @@ String printAddress(DeviceAddress deviceAddressPa);
 void temperatureSensorsBegin();
 void copiaDevice(DeviceAddress, uint8_t *);
 
-DeviceAddress tempDeviceAddress;
 
-uint8_t deviceAddress01[8];
 
 OneWire oneWire_0(ONE_WIRE_BUS_0);
 OneWire oneWire_1(ONE_WIRE_BUS_1);
 OneWire oneWire_2(ONE_WIRE_BUS_2);
-OneWire oneWire_3(ONE_WIRE_BUS_3);
+
 
 DallasTemperature sensors_m_0(&oneWire_0);
 DallasTemperature sensors_m_1(&oneWire_1);
 DallasTemperature sensors_m_2(&oneWire_2);
-DallasTemperature sensors_m_3(&oneWire_3);
 
-DallasTemperature * sensors[]={&sensors_m_0,&sensors_m_1,&sensors_m_2,&sensors_m_3};
+DeviceAddress tempDeviceAddress;
+
+typedef uint8_t addressMatrix[6][8];
+
+addressMatrix addressMatrix0;
+addressMatrix addressMatrix1;
+addressMatrix addressMatrix2;
+
+struct bus{
+  DallasTemperature * temperatureBus;
+  uint8_t sensorsNum;
+  addressMatrix * addressVector; 
+}bus0,bus1,bus2;
+
+bus * buses[]={&bus0,&bus1,&bus2};
 
 String temperatureString = ("");
 uint8_t numberOfDevices=0;
 uint32_t t_last_tx;
 
 void build_temperature_message() {
-  for (uint8_t sen = 0; sen < 4; sen++){
-    DallasTemperature * sensors_m_ = sensors[sen];
+  for (uint8_t b = 0; b < 3; b++){
+
+    bus * bus_ = buses[b];
     
     // Medidas de tiempo
     uint32_t t_previo_n;   
@@ -60,18 +72,27 @@ void build_temperature_message() {
     t_previo_r = micros();   
 
     // sensors_m_->requestTemperatures();
-    sensors_m_->setWaitForConversion(false);  // makes it async
-    sensors_m_->requestTemperatures();
-    sensors_m_->setWaitForConversion(true);
+    // sensors_m_->setWaitForConversion(false);  // makes it async
+    bus_->temperatureBus->setWaitForConversion(false);
+
+    //sensors_m_->requestTemperatures();
+    bus_->temperatureBus->requestTemperatures();
+
+    
+    //sensors_m_->setWaitForConversion(true);
+    bus_->temperatureBus->setWaitForConversion(true);
+
  
     t_previo_n = micros();
 
-    numberOfDevices = sensors_m_->getDeviceCount();
+    // numberOfDevices = sensors_m_->getDeviceCount();
+    numberOfDevices = bus_->temperatureBus->getDeviceCount();
+    
     
     t_post_n = micros();
 
     if (DEBUG) Serial.print(F("**** buildTemperatureMessage_ "));
-    if (DEBUG) Serial.println(sen);
+    if (DEBUG) Serial.println(b);
     if (DEBUG) Serial.print(F("numberOfDevices = "));
     if (DEBUG) Serial.println(numberOfDevices);
 
@@ -96,13 +117,20 @@ void build_temperature_message() {
       uint32_t t_previo_g;
   
       t_previo_g = micros();  
-      sensors_m_->getAddress(tempDeviceAddress, i);
+      // sensors_m_->getAddress(tempDeviceAddress, i);
+      bus_->temperatureBus->getAddress(tempDeviceAddress, i);
+      
+
+      
       t_post_g = micros();
 
       uint8_t deviceAddressDest0[8];
       copiaDevice(tempDeviceAddress, deviceAddressDest0);
-            
-      //uint8_t * deviceAddress02=tempDeviceAddress;
+      // bus0.addressVector = &addressMatrix0;
+      
+      copiaDevice(tempDeviceAddress, bus0.addressVector[0][0]);
+
+     
 
        if (DEBUG) Serial.println(F("*** tiempos_getAddress "));
        if (DEBUG) Serial.println(t_previo_g);
@@ -115,8 +143,21 @@ void build_temperature_message() {
        //if(sensors_m_->getAddress(tempDeviceAddress, i)){
          
          t_previo_t= micros();  
+
+
+
+         /*
+        struct bus{
+          DallasTemperature * temperatureBus;
+          uint8_t sensorsNum;
+          addressMatrix * addressVector; 
+        }bus0,bus1,bus2;
+         
+         */
    
-         float tempC = sensors_m_->getTempC(tempDeviceAddress);
+         // float tempC = bus_->temperatureBus->getTempC(tempDeviceAddress);
+         float tempC = bus_->temperatureBus->getTempC(bus0.addressVector[0][0]);
+         
 
          t_post_t= micros();
 
@@ -167,10 +208,20 @@ String printAddress(DeviceAddress deviceAddressPa){
 }
 
 void temperatureSensorsBegin() {
-  sensors_m_0.begin();
-  sensors_m_1.begin();
-  sensors_m_2.begin();
-  sensors_m_3.begin();
+
+
+  bus0.temperatureBus=&sensors_m_0;
+  bus1.temperatureBus=&sensors_m_1;
+  bus2.temperatureBus=&sensors_m_2;
+
+  bus0.addressVector = &addressMatrix0;
+  bus1.addressVector = &addressMatrix1;
+  bus2.addressVector = &addressMatrix2;
+    
+  bus0.temperatureBus->begin();
+  bus1.temperatureBus->begin();
+  bus2.temperatureBus->begin();
+
   }
 
 void setup() {

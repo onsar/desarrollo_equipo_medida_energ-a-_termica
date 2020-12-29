@@ -1,14 +1,14 @@
 
-#define DEBUG 1
+#define DEBUG 0
 
 #define BPS 115200
 
-#define ONE_WIRE_BUS_0 17 // A3
+#define ONE_WIRE_BUS_0 19 // A3
 #define ONE_WIRE_BUS_1 18 // A4
-#define ONE_WIRE_BUS_2 19 // A5
+#define ONE_WIRE_BUS_2 17 // A5
 
-// Lower resolution
-#define TEMPERATURE_PRECISION 9
+#define NUMBER_OF_BUSES 3
+
 
 // *******************************************************
 
@@ -36,6 +36,9 @@ int16_t tempValueM[3][6];
 
 uint32_t t_last_tx;
 
+uint8_t busR = 0; // bus Routine
+uint8_t devR = 0; // device Routine
+
 
 // **************************
 // Funciones
@@ -44,9 +47,9 @@ uint32_t t_last_tx;
 void temperatureSensorsBegin();
 void getAdresses();
 void doConversion();
-void getTemperature();
+void getTemperatureStep();
+void getTemperatureInit();
 void build_temperature_message();
-String printName(DeviceAddress deviceAddress);
 String printAddress(DeviceAddress deviceAddressPa);
 void copiaDevice(DeviceAddress, uint8_t *);
 
@@ -65,16 +68,18 @@ void setup() {
 }
 
 void loop() {
+  
+  getTemperatureStep();
+  
   uint32_t current_time= millis();
   if ((current_time - t_last_tx) > 9000){
     
-    Serial.print(F("******Print LCD - sgs: "));
-    Serial.println(millis() / 1000);
+    if(DEBUG)Serial.print(F("******Print LCD - sgs: "));
+    if(DEBUG)Serial.println(millis() / 1000);
     
     t_last_tx = current_time;
     doConversion();
-    getTemperature();
-    build_temperature_message();
+    getTemperatureInit();
   }
 }
 
@@ -84,9 +89,12 @@ void temperatureSensorsBegin() {
   bus1.begin();
   bus2.begin();
 
-  delay(1000);
+  delay(100);
 
   getAdresses();
+  doConversion();
+  delay(100);
+  getTemperatureInit();
   
 }
 
@@ -110,30 +118,38 @@ void getAdresses() {
 
 void doConversion() {
   for (uint8_t b = 0; b < 3; b++){
-    
     busM[b]->setWaitForConversion(false);
     busM[b]->requestTemperatures();
     busM[b]->setWaitForConversion(true);
-    delay(1000);
+    //delay(100);
   }
 }
 
-void getTemperature() {
-  for (uint8_t b = 0; b < 3; b++){
+void getTemperatureInit() {
+  busR = 0; // bus Routine
+  devR = 0; // device Routine
+  if(DEBUG){Serial.print("busR: ");Serial.println(busR);}
+  if(DEBUG){Serial.print("devR: ");Serial.println(devR);}
+}
 
-    numberOfDevices = sensorsNumM[b];
+void getTemperatureStep() {
+  if(DEBUG){Serial.print(busR);}
+  
+  if(busR < NUMBER_OF_BUSES){
     
-    for(int i=0;i<numberOfDevices; i++){
+    if(devR < sensorsNumM[busR]){
+      int16_t temp = busM[busR]->getTemp(addressM[busR][devR]);
+      tempValueM[busR][devR] = temp;
+      devR++;
       
-      int16_t temp = busM[b]->getTemp(addressM[b][i]);
-
-      tempValueM[b][i] = temp;
-
-      if(DEBUG) Serial.println(temp);
-
+      if(DEBUG)Serial.println(temp);
     }
-    delay(1000);
-  }
+    else {
+      build_temperature_message();
+      busR++ ; devR=0;
+    } 
+    
+  }// if(busR)
 }
 
 
@@ -143,25 +159,24 @@ void getTemperature() {
 // uint8_t addressM[3][6][8]={};
 
 void build_temperature_message() {
-  for (uint8_t b = 0; b < 3; b++){
-    numberOfDevices = sensorsNumM[b];
-    String message_to_tx ="";
+  numberOfDevices = sensorsNumM[busR];
+  String message_to_tx ="";
+  
+  for(int i=0;i<numberOfDevices; i++){
     
-    for(int i=0;i<numberOfDevices; i++){
-      
-      float tempC = busM[b]->rawToCelsius(tempValueM[b][i]);
-      
-      String name_18 = printAddress(addressM[b][i]);
-      String value_18 = String(tempC);
-      
-      if (DEBUG) Serial.println(name_18 + ":" + value_18);
-      message_to_tx += name_18 + ":" + value_18 ;
-      if (i != (numberOfDevices -1)) {message_to_tx +=",";}   
-    }
-    if (DEBUG) Serial.println(F("message_to_tx: "));
-    if (DEBUG) Serial.println(message_to_tx);
-    delay(1000);
+    float tempC = busM[busR]->rawToCelsius(tempValueM[busR][i]);
+    
+    String name_18 = printShortA(addressM[busR][i]);
+    String value_18 = String(tempC,1);
+    
+    if (DEBUG) Serial.println(name_18 + ":" + value_18);
+    message_to_tx += name_18 + ":" + value_18 ;
+    if (i != (numberOfDevices -1)) {message_to_tx +=",";}   
   }
+  if (DEBUG) Serial.println(F("message_to_tx: "));
+  if(message_to_tx != "")Serial.println(message_to_tx);
+  delay(1000);
+
 }
 
 
@@ -174,6 +189,16 @@ String printAddress(DeviceAddress deviceAddressPa){
     string_temp_r = string_temp_r +stringTemp;
   }
   return string_temp_r;
+}
+
+String printShortA(DeviceAddress deviceAddressPa){
+  String stringShort="";
+  for (uint8_t i = 1; i < 3; i++){
+    if (deviceAddressPa[i] < 16) stringShort += ("0");
+    uint8_t temp= deviceAddressPa[i];
+    stringShort += String(temp, HEX);
+  }
+  return stringShort;
 }
 
 void copiaDevice(DeviceAddress deviceAddressOr, uint8_t * deviceAddressDest){

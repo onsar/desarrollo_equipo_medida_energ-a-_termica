@@ -12,6 +12,8 @@
 
 // *******************************************************
 
+#include "contador_pcint.h"
+
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
@@ -60,6 +62,8 @@ void setup() {
 
   Serial.println(F("Inicio del microcontrolador. Prueba de tiempos"));
 
+  contadorPcintSetup();
+
   temperatureSensorsBegin();
   
   t_last_tx= millis();
@@ -68,18 +72,35 @@ void setup() {
 }
 
 void loop() {
+
+  for (int i=0; i<ARRAY_SIZE(monitored_pins); i++) {
+    if(millis() > monitored_pins[i].time_output){ monitored_pins[i].begin();}   
+  }
   
   getTemperatureStep();
   
   uint32_t current_time= millis();
+  
+  if ((current_time - t_last_tx) > 7000){
+    
+    
+    doConversion();
+    //getTemperatureInit();
+
+
+  }
+
+  
   if ((current_time - t_last_tx) > 9000){
     
     if(DEBUG)Serial.print(F("******Print LCD - sgs: "));
     if(DEBUG)Serial.println(millis() / 1000);
     
     t_last_tx = current_time;
-    doConversion();
+    //doConversion();
     getTemperatureInit();
+
+    build_pulses_message();
   }
 }
 
@@ -117,6 +138,7 @@ void getAdresses() {
 
 
 void doConversion() {
+  //contadorPcintEnd();
   for (uint8_t b = 0; b < 3; b++){
     busM[b]->setWaitForConversion(false);
     busM[b]->requestTemperatures();
@@ -133,16 +155,17 @@ void getTemperatureInit() {
 }
 
 void getTemperatureStep() {
-  if(DEBUG){Serial.print(busR);}
+  //if(DEBUG){Serial.print(busR);}
   
   if(busR < NUMBER_OF_BUSES){
     
     if(devR < sensorsNumM[busR]){
       int16_t temp = busM[busR]->getTemp(addressM[busR][devR]);
       tempValueM[busR][devR] = temp;
+      // if(temp==10880) {doConversion();getTemperatureInit();}
       devR++;
       
-      if(DEBUG)Serial.println(temp);
+      Serial.println(temp);
     }
     else {
       build_temperature_message();

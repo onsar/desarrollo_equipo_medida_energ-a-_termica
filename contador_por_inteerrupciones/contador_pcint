@@ -1,0 +1,46 @@
+#define ARRAY_SIZE(X) (sizeof(X)/sizeof(*X))
+#define MAXTIME 4294967295
+#define REBOUNDTIME 30
+
+#include <YetAnotherPcInt.h>
+
+struct PinListener {
+  uint8_t number;
+  const char* name;
+  uint32_t pulse;
+  uint32_t time_output ;
+  
+  void begin() {
+    pinMode(number, INPUT_PULLUP);
+    PcInt::attachInterrupt(number, PinListener::changed, this, CHANGE);
+  }
+  
+  void end() {
+    PcInt::detachInterrupt(number);
+  }
+  
+private:
+  void changed(bool pinstate) {
+    if(pinstate==0) pulse++;
+    this->end();
+    time_output= millis()+REBOUNDTIME;
+    if(DEBUG)Serial.print(name);
+    if(DEBUG)Serial.print(" (");
+    if(DEBUG)Serial.print(number);
+    if(DEBUG)Serial.print(") changed to ");
+    if(DEBUG)Serial.print(pinstate ? "HIGH" : "LOW");
+    if(DEBUG)Serial.print(" pulse: ");Serial.println(pulse);
+  }
+  
+  static void changed(PinListener* _this, bool pinstate) {
+    _this->changed(pinstate);
+  }
+};
+
+
+//List of pins we are listening to
+PinListener monitored_pins[] = {
+  {14,"e1",0,MAXTIME},
+  {15,"e2",0,MAXTIME},
+  {16,"e3",0,MAXTIME},
+};

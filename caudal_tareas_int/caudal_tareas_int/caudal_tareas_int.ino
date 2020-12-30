@@ -96,12 +96,13 @@ void loop(){
 /***********  e_n  ******************/
 /************************************/
   // Estado de los contadores:
-  //    2: Alto, esperando bajo
+  //    1: Esperando Interrupción
+  //    2: Interrupcion flanco BAJADA
   //    3: transición a bajo
-  //    4: Bajo, esperando alto
-  //    5 :transicion a alto
+  //    4: Interrupcion flanco SUBIDA
+  //    5: transicion a alto
   
-  if (millis() < 4294966295){           // el último segundo NO se cuentan pulsos
+  // el último segundo NO se cuentan pulsos
     for (int n=0; n < 3; n++){
       test_transmision(counters[n]);    // ejecutar transmisiones pendientes
       switch (counters[n]->state) {           
@@ -135,7 +136,6 @@ void loop(){
           break;
       } // final switch
     }   // final for
-  }     // final if
 }       // final loop()
 
 /************************************/

@@ -665,21 +665,21 @@ Wire Wire Line
 $Comp
 L Jumper:Jumper_2_Open JP?
 U 1 1 5FD57484
-P 13890 7370
-F 0 "JP?" H 14035 7510 50  0000 C CNN
-F 1 "Jumper_2_Open" H 13890 7514 50  0001 C CNN
-F 2 "Jumper:SolderJumper-2_P1.3mm_Open_Pad1.0x1.5mm" H 13890 7370 50  0001 C CNN
-F 3 "~" H 13890 7370 50  0001 C CNN
-	1    13890 7370
+P 9185 3640
+F 0 "JP?" H 9330 3780 50  0000 C CNN
+F 1 "Jumper_2_Open" H 9185 3784 50  0001 C CNN
+F 2 "Jumper:SolderJumper-2_P1.3mm_Open_Pad1.0x1.5mm" H 9185 3640 50  0001 C CNN
+F 3 "~" H 9185 3640 50  0001 C CNN
+	1    9185 3640
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	14090 7370 14840 7370
-Text Label 13020 7370 0    60   ~ 0
+	9385 3640 10135 3640
+Text Label 8315 3640 0    60   ~ 0
 v_comun_0
 Wire Wire Line
-	12990 7370 13690 7370
-Text Label 14285 7370 0    60   ~ 0
+	8285 3640 8985 3640
+Text Label 9580 3640 0    60   ~ 0
 v_comun_1
 $Comp
 L Device:D_Zener D?

@@ -1,4 +1,70 @@
+/*
 
+
+Medida continua
+===============
+Medida contiuna de:   0: Pulsos, 
+                      1: Valores Analógicos 
+                      2: Temperaturas
+                        
+* Cada ciclo se hace solo una tarea
+* El obhetivo es habilitar las interrupciones a los 10 ms
+
+Al final del ciclo (60.000 ms)
+==============================
+* Imprimir valores de  0: Pulsos, 
+                       1: Valores Analógicos 
+                       2: Temperaturas
+                        
+* Reiniciar registros: 1: Valores Analógicos
+    (numero samples)   2: Temperaturas
+              
+
+Pulsos
+=======
+Contados mediante interrupciones PCINT
+Cada interrupción inhabilita otras para evitar rebotes
+La inhabilitacion es durante 10ms 
+Los 10 ms se comprueban cada ciclo
+A estos ms hay que sumar el tiempo de las tareas activas
+la mas larga es la lectura de temperatura: 14ms
+
+Valores Analógicos
+==================
+Se suman todos los valores durante el ciclo
+El resultado es la media
+
+Media de Temperatura
+====================
+La medida de temperatura se hace con sensores ds18b20
+* La conversion lleva casi 1 segundo
+* Se realiza una conversion antes de cada pregunta
+* El tiempo de comunicación de la temperatura es de 14ms
+* La temporizacion de la conversión se hace mediante registro de tiempo
+* Mientras la conversion otras tareas son ejecutadas
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+*/
 #define DEBUG 0
 
 #define BPS 115200

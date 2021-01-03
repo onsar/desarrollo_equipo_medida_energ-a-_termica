@@ -31,14 +31,6 @@ PinRead analogicPins[] = {
 
 const uint8_t nAnalogicPins = sizeof(analogicPins)/sizeof(*analogicPins);
 
-/*
-void analogicReadInit(){
-   
-  analogR = 0;
-  analogFlag = 1;
-}
-*/
-
 void buildAnalogicMessage() {
   String message_to_tx ="";
   

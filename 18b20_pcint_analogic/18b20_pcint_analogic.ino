@@ -37,32 +37,12 @@ El resultado es la media
 Media de Temperatura
 ====================
 La medida de temperatura se hace con sensores ds18b20
-* La conversion lleva casi 1 segundo
-* Se realiza una conversion antes de cada pregunta
-* El tiempo de comunicación de la temperatura es de 14ms
-* La temporizacion de la conversión se hace mediante registro de tiempo
+* La conversion lleva casi 1 segundo.
+* Se realiza una conversion antes de cada pregunta: Case 0
+* La temporizacion de la conversión se hace mediante registro de tiempo: case 1
 * Mientras la conversion otras tareas son ejecutadas
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
+* El tiempo de comunicación de la temperatura es de 14ms: case 2
+* Transmitir las temperaturas es otra tarea: case 3
 
 */
 #define DEBUG 0
@@ -77,9 +57,8 @@ La medida de temperatura se hace con sensores ds18b20
 
 uint32_t t_last_tx;
 
-// bool analogFlag = 1; Esta en el fichero
 bool doConversionF = 1;
-bool pulsesMessageFlag = 1;
+// bool pulsesMessageFlag = 1;
 
 
 
@@ -100,24 +79,26 @@ void setup() {
 
 void loop() {
 
-  allowPcintPending();
+  // allowPcintPending();
+
+  CounterStep.doStep();
   
   doTemperatureStep();
   
   uint32_t current_time= millis();
 
-  if ((current_time - t_last_tx) > 5000){
-    if(analogFlag){doAnalogicStep();}
+  if ((current_time - t_last_tx) > 3000){
+    AnalogicStep.doStep();
   }
   
   if ((current_time - t_last_tx) > 7000){
     if(doConversionF){doConversion();doConversionF = 0;}
   }
-
+/*
    if ((current_time - t_last_tx) > 8000){
     if(pulsesMessageFlag){build_pulses_message();pulsesMessageFlag = 0;}
   } 
-  
+*/ 
  
   if ((current_time - t_last_tx) > 10000){
     
@@ -127,7 +108,8 @@ void loop() {
     t_last_tx = current_time;
     getTemperatureInit();
     doConversionF = 1;
-    pulsesMessageFlag=1;
-    analogFlag = 1;
+    // pulsesMessageFlag=1;
+    AnalogicStep.next_task=1; //imprimir resultados
+    CounterStep.next_task=1; //imprimir resultados
   }
 }

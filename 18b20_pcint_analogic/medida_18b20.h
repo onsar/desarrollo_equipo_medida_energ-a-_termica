@@ -1,4 +1,8 @@
 
+
+
+
+
 #ifndef medida_18b20_h
 #define medida_18b20_h
 
@@ -31,7 +35,8 @@ uint8_t numberOfDevices=0;
 
 uint8_t sensorsNumM[]={0,0,0};
 
-int16_t tempValueM[3][6];
+uint32_t tempValueM[3][6];
+uint16_t tempSamplesM[3][6];
 
 uint8_t busR = 0; // bus Routine
 
@@ -51,6 +56,7 @@ void build_temperature_message();
 String printAddress(DeviceAddress deviceAddressPa);
 String printShortA(DeviceAddress deviceAddressPa);
 void copiaDevice(DeviceAddress, uint8_t *);
+void resetTemperatures();
 
 
 void temperatureSensorsBegin() {
@@ -122,13 +128,6 @@ void doTemperatureStep() {
   }// if(busR)
 }
 
-
-// uint8_t sensorsNumM[]={0,0,0};
-// tempValueM[b][i] = temp;
-// DallasTemperature * busM[]={&bus0,&bus1,&bus2};
-// uint8_t addressM[3][6][8]={};
-
-
 void build_temperature_message() {
   numberOfDevices = sensorsNumM[busR];
   String message_to_tx ="";
@@ -175,5 +174,103 @@ void copiaDevice(DeviceAddress deviceAddressOr, uint8_t * deviceAddressDest){
     arrayIndex++ ;
   }
 }
+
+
+/*
+ * 
+Media de Temperatura
+====================
+La medida de temperatura se hace con sensores ds18b20
+* La conversion lleva casi 1 segundo.
+* Se realiza una conversion antes de cada pregunta: Case 0
+* La temporizacion de la conversión se hace mediante registro de tiempo: case 1
+* Mientras la conversion otras tareas son ejecutadas
+* El tiempo de comunicación de la temperatura es de 14ms: case 2
+* Transmitir las temperaturas es otra tarea: case 3
+
+*/
+
+/******* contador step *****************/
+// => comprobar que la variable estática funciona bien
+
+struct temperatureStep{
+  uint8_t  next_task;
+  uint32_t time_output;
+  
+  void doStep(){
+    switch (next_task) {
+      case 0:
+        doConversion();
+        busR =0; devR=0;
+        
+        resetTemperatures();
+
+        
+        time_output= millis()+1000;
+        next_task =1;
+        break;
+        
+      case 1:
+        if(millis()>time_output) next_task = 2;
+        else next_task =1;
+        break;
+        
+      case 2:
+        if(busR < oneWireCount){
+          if(devR < sensorsNumM[busR]){
+            int16_t temp = busM[busR].getTemp(addressM[busR][devR]);
+            tempValueM[busR][devR] = temp;
+            tempSamplesM[busR][devR]++;
+            devR++;  
+            Serial.println(temp);
+          }
+          else {
+            busR++ ; devR=0;
+          } 
+        }// if(busR)
+        
+        else{
+           next_task = 0;               
+        }
+        break;
+        
+      case 3:
+        build_temperature_message();
+        next_task=0;
+        break;
+        
+      default:
+        // statements
+        break;
+    } // switch
+  }// doStep
+};// struct
+
+temperatureStep TemperatureStep = {0};
+
+void resetTemperatures(){
+  
+    for (uint8_t b = 0; b < oneWireCount; b++){
+
+    if(DEBUG){Serial.print(F("numberOfDevices: "));Serial.println(sensorsNumM[b]);}
+
+    for(int i=0;i<sensorsNumM[b]; i++){
+      tempValueM[b][i] = 0;
+      tempSamplesM[b][i] = 0;
+      if(DEBUG){Serial.print(F("tempValueM, tempSamplesM =0 "));Serial.println(printAddress(addressM[b][i]));}
+    }
+  }
+}
+
+/********FIN contador step *************/
+
+
+
+
+
+
+
+
+
 
 #endif

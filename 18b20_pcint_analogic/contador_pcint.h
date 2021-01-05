@@ -88,4 +88,36 @@ void allowPcintPending(){
   }
 }
 
+
+/******* contador step *****************/
+
+
+struct counterStep{
+  uint8_t next_task;
+  
+  void doStep(){
+    switch (next_task) {
+      case 0:
+          allowPcintPending();
+        break;     
+      case 1:
+        allowPcintPending();
+        build_pulses_message();
+        allowPcintPending();
+        next_task=0;
+        break;
+      default:
+        // statements
+        break;
+
+    }
+  }
+};
+
+counterStep CounterStep = {0};
+
+
+/********FIN contador step *************/
+
+
 #endif

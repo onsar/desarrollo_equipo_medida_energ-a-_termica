@@ -50,8 +50,8 @@ uint8_t devR = 0; // device Routine
 void temperatureSensorsBegin();
 void getAdresses();
 void doConversion();
-void doTemperatureStep();
-void getTemperatureInit();
+// void doTemperatureStep();
+// void getTemperatureInit();
 void build_temperature_message();
 String printAddress(DeviceAddress deviceAddressPa);
 String printShortA(DeviceAddress deviceAddressPa);
@@ -68,8 +68,8 @@ void temperatureSensorsBegin() {
 
   getAdresses();
   doConversion();
+  busR = 0; devR = 0;
   delay(100);
-  getTemperatureInit();
   
 }
 
@@ -96,17 +96,17 @@ void doConversion() {
   for (uint8_t b = 0; b < 3; b++){
     busM[b].setWaitForConversion(false);
     busM[b].requestTemperatures();
-    busM[b].setWaitForConversion(true);
+    // busM[b].setWaitForConversion(true);
     //delay(100);
   }
 }
 
+/*
 void getTemperatureInit() {
   busR = 0; // bus Routine
   devR = 0; // device Routine
-  if(DEBUG){Serial.print("busR: ");Serial.println(busR);}
-  if(DEBUG){Serial.print("devR: ");Serial.println(devR);}
 }
+
 
 void doTemperatureStep() {
   //if(DEBUG){Serial.print(busR);}
@@ -128,13 +128,19 @@ void doTemperatureStep() {
   }// if(busR)
 }
 
+*/
+
 void build_temperature_message() {
+  // busR=0;
   numberOfDevices = sensorsNumM[busR];
   String message_to_tx ="";
   
   for(int i=0;i<numberOfDevices; i++){
+    if (1) Serial.print(F("tempValueM[busR][i]: ")); Serial.println(tempValueM[busR][i]);
+    if (1) Serial.print(F("tempSamplesM[busR][i]: ")); Serial.println(tempSamplesM[busR][i]);
     
-    float tempC = busM[busR].rawToCelsius(tempValueM[busR][i]);
+ 
+    float tempC = busM[busR].rawToCelsius(tempValueM[busR][i]/tempSamplesM[busR][i]);
     
     message_to_tx += printShortA(addressM[busR][i]);
     message_to_tx += ":";
@@ -202,10 +208,6 @@ struct temperatureStep{
       case 0:
         doConversion();
         busR =0; devR=0;
-        
-        resetTemperatures();
-
-        
         time_output= millis()+1000;
         next_task =1;
         break;
@@ -219,24 +221,28 @@ struct temperatureStep{
         if(busR < oneWireCount){
           if(devR < sensorsNumM[busR]){
             int16_t temp = busM[busR].getTemp(addressM[busR][devR]);
-            tempValueM[busR][devR] = temp;
+            tempValueM[busR][devR] += temp;
             tempSamplesM[busR][devR]++;
             devR++;  
             Serial.println(temp);
           }
-          else {
-            busR++ ; devR=0;
-          } 
-        }// if(busR)
-        
-        else{
-           next_task = 0;               
+          else {busR++; devR=0;} 
         }
+        else{ next_task = 0;}
         break;
-        
+
       case 3:
-        build_temperature_message();
-        next_task=0;
+        busR=0; devR=0;
+        next_task=4;
+        break;
+                
+      case 4:
+        if(busR < oneWireCount){
+          build_temperature_message();
+          busR++;
+          next_task=4;
+        }
+        else{resetTemperatures();next_task=0;}
         break;
         
       default:
@@ -246,14 +252,10 @@ struct temperatureStep{
   }// doStep
 };// struct
 
-temperatureStep TemperatureStep = {0};
+temperatureStep TemperatureStep = {0,millis()};
 
 void resetTemperatures(){
-  
-    for (uint8_t b = 0; b < oneWireCount; b++){
-
-    if(DEBUG){Serial.print(F("numberOfDevices: "));Serial.println(sensorsNumM[b]);}
-
+  for (uint8_t b = 0; b < oneWireCount; b++){
     for(int i=0;i<sensorsNumM[b]; i++){
       tempValueM[b][i] = 0;
       tempSamplesM[b][i] = 0;
@@ -263,11 +265,6 @@ void resetTemperatures(){
 }
 
 /********FIN contador step *************/
-
-
-
-
-
 
 
 

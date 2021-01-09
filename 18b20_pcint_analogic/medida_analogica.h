@@ -20,14 +20,13 @@ struct PinRead {
     // if(1)Serial.print(name);
     // if(1)Serial.print(" ");
     // if(1)Serial.println(value);
-
   }
 };
 
 PinRead analogicPins[] = {
-  {14,"a1",1,0,0},
-  {15,"a2",1,0,0},
-  {16,"a3",1,0,0},
+  {14,"a1",60,0,0},
+  {15,"a2",60,0,0},
+  {16,"a3",60,0,0},
 };
 
 const uint8_t nAnalogicPins = sizeof(analogicPins)/sizeof(*analogicPins);
@@ -39,7 +38,8 @@ void buildAnalogicMessage() {
        
     message_to_tx += analogicPins[i].name;
     message_to_tx += ":";
-    message_to_tx += String(analogicPins[i].value/analogicPins[i].samples);
+    // analogicPins[i].scale
+    message_to_tx += String(analogicPins[i].value * analogicPins[i].scale / analogicPins[i].samples / 1023);
     analogicPins[i].value = 0;
     analogicPins[i].samples = 0;
     if (i != (nAnalogicPins -1)) {message_to_tx +=",";} 
@@ -49,8 +49,6 @@ void buildAnalogicMessage() {
   }
   if (DEBUG) {Serial.print(F("message_to_tx: "));Serial.println(message_to_tx);}
   if(message_to_tx != "")Serial.println(message_to_tx);
-
-  
 }
 
 struct analogicStep{
@@ -70,10 +68,10 @@ struct analogicStep{
         buildAnalogicMessage();
         next_task=0;
         break;
+        
       default:
         // statements
         break;
-
     }
   }
 };

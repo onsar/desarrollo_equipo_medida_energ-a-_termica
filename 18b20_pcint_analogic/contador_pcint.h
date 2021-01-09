@@ -26,15 +26,10 @@ private:
   void changed(bool pinstate) {
     if(pinstate==0) pulse++;
     this->end();
-    //delay(10);
-    //this->begin();
     time_output= millis()+REBOUNDTIME;
     if(DEBUG)Serial.print(name);
-    if(DEBUG)Serial.print(" (");
-    if(DEBUG)Serial.print(number);
-    if(DEBUG)Serial.print(") changed to ");
+    if(DEBUG)Serial.print(" changed to ");
     if(1)Serial.print(pinstate ? "HI " : "LO ");
-    // if(1){Serial.print(" pulse: ");Serial.println(pulse);}
     if(1){Serial.println(pulse);}
   }
   
@@ -45,8 +40,8 @@ private:
 
 PinListener monitored_pins[] = {
   {4,"e1",0,MAXTIME},
-  {5,"e2",0,MAXTIME},
-  {6,"e3",0,MAXTIME},
+  {7,"e2",0,MAXTIME},
+  {8,"e3",0,MAXTIME},
 };
 
 const uint8_t pcintPins = sizeof(monitored_pins)/sizeof(*monitored_pins);
@@ -89,8 +84,7 @@ void allowPcintPending(){
 }
 
 
-/******* contador step *****************/
-
+/******* counter step *****************/
 
 struct counterStep{
   uint8_t next_task;
@@ -109,15 +103,13 @@ struct counterStep{
       default:
         // statements
         break;
-
     }
   }
 };
 
 counterStep CounterStep = {0};
 
-
-/********FIN contador step *************/
+/********END counter step *************/
 
 
 #endif

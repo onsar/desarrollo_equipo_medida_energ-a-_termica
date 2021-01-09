@@ -57,21 +57,18 @@ La medida de temperatura se hace con sensores ds18b20
 
 uint32_t t_last_tx;
 
-// bool doConversionF = 1;
-
-
-
 
 void setup() {
 
   Serial.begin(BPS);
-
   Serial.println(F("Inicio medida de temperatura y caudal por pulsos"));
+
+  temperatureSensorsBegin();
+
+  delay(1000);
 
   contadorPcintSetup();
 
-  temperatureSensorsBegin();
-  
   t_last_tx= millis();
 
   delay(100);
@@ -79,30 +76,12 @@ void setup() {
 
 void loop() {
 
-  // allowPcintPending();
-
   CounterStep.doStep();
   TemperatureStep.doStep();
   AnalogicStep.doStep();  
 
-  
-  // doTemperatureStep();
-  
-
-  
   uint32_t current_time= millis();
-/* 
-  if ((current_time - t_last_tx) > 3000){
-    AnalogicStep.doStep();
-  }
-  
 
-  if ((current_time - t_last_tx) > 7000){
-    if(doConversionF){doConversion();doConversionF = 0;}
-  }
-
-
-*/ 
  
   if ((current_time - t_last_tx) > 10000){
     
@@ -110,8 +89,6 @@ void loop() {
     if(DEBUG)Serial.println(millis() / 1000);
     
     t_last_tx = current_time;
-    // getTemperatureInit();   
-    // doConversionF = 1;
 
     AnalogicStep.next_task=1; //imprimir resultados
     CounterStep.next_task=1; //imprimir resultados

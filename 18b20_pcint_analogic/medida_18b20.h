@@ -1,8 +1,5 @@
 
 
-
-
-
 #ifndef medida_18b20_h
 #define medida_18b20_h
 
@@ -20,26 +17,18 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-
 OneWire ds18x20[] = { WIRE_0, WIRE_1,WIRE_2 };
-
 const int oneWireCount = sizeof(ds18x20)/sizeof(OneWire);
 
 DallasTemperature busM[oneWireCount];
 
-DeviceAddress tempDeviceAddress;
-
+uint8_t sensorsNumM[oneWireCount]={};
 uint8_t addressM[oneWireCount][6][8]={};
 
-uint8_t numberOfDevices=0;
-
-uint8_t sensorsNumM[]={0,0,0};
-
-uint32_t tempValueM[3][6];
-uint16_t tempSamplesM[3][6];
+uint32_t tempValueM[oneWireCount][6];
+uint16_t tempSamplesM[oneWireCount][6];
 
 uint8_t busR = 0; // bus Routine
-
 uint8_t devR = 0; // device Routine
 
 
@@ -50,8 +39,6 @@ uint8_t devR = 0; // device Routine
 void temperatureSensorsBegin();
 void getAdresses();
 void doConversion();
-// void doTemperatureStep();
-// void getTemperatureInit();
 void build_temperature_message();
 String printAddress(DeviceAddress deviceAddressPa);
 String printShortA(DeviceAddress deviceAddressPa);
@@ -74,13 +61,13 @@ void temperatureSensorsBegin() {
 }
 
 void getAdresses() {
-  for (uint8_t b = 0; b < 3; b++){
+  DeviceAddress tempDeviceAddress;
+  for (uint8_t b = 0; b < oneWireCount; b++){
 
-    numberOfDevices = busM[b].getDeviceCount();
-    sensorsNumM[b]= numberOfDevices;
-    if(DEBUG){Serial.print(F("numberOfDevices: "));Serial.println(sensorsNumM[b]);}
+    sensorsNumM[b] = busM[b].getDeviceCount();
+    if(DEBUG){Serial.print(F("number Of Devices: "));Serial.println(sensorsNumM[b]);}
 
-    for(int i=0;i<numberOfDevices; i++){
+    for(int i=0;i<sensorsNumM[b]; i++){
       busM[b].getAddress(tempDeviceAddress, i); 
       if(DEBUG){Serial.print(F("tempDeviceAddress: "));Serial.println(printAddress(tempDeviceAddress));}
       
@@ -101,43 +88,14 @@ void doConversion() {
   }
 }
 
-/*
-void getTemperatureInit() {
-  busR = 0; // bus Routine
-  devR = 0; // device Routine
-}
-
-
-void doTemperatureStep() {
-  //if(DEBUG){Serial.print(busR);}
-  
-  if(busR < oneWireCount){
-    
-    if(devR < sensorsNumM[busR]){
-      int16_t temp = busM[busR].getTemp(addressM[busR][devR]);
-      tempValueM[busR][devR] = temp;
-      devR++;
-      
-      Serial.println(temp);
-    }
-    else {
-      build_temperature_message();
-      busR++ ; devR=0;
-    } 
-    
-  }// if(busR)
-}
-
-*/
-
 void build_temperature_message() {
   // busR=0;
-  numberOfDevices = sensorsNumM[busR];
+  // numberOfDevices = sensorsNumM[busR];
   String message_to_tx ="";
   
-  for(int i=0;i<numberOfDevices; i++){
-    if (1) Serial.print(F("tempValueM[busR][i]: ")); Serial.println(tempValueM[busR][i]);
-    if (1) Serial.print(F("tempSamplesM[busR][i]: ")); Serial.println(tempSamplesM[busR][i]);
+  for(int i=0;i<sensorsNumM[busR]; i++){
+    if (DEBUG) {Serial.print(F("tempValueM[busR][i]: ")); Serial.println(tempValueM[busR][i]);}
+    if (DEBUG) {Serial.print(F("tempSamplesM[busR][i]: ")); Serial.println(tempSamplesM[busR][i]);}
     
  
     float tempC = busM[busR].rawToCelsius(tempValueM[busR][i]/tempSamplesM[busR][i]);
@@ -145,7 +103,7 @@ void build_temperature_message() {
     message_to_tx += printShortA(addressM[busR][i]);
     message_to_tx += ":";
     message_to_tx += String(tempC,1);
-    if (i != (numberOfDevices -1)) {message_to_tx +=",";} 
+    if (i != (sensorsNumM[busR] -1)) {message_to_tx +=",";} 
        
   }
   if (DEBUG) Serial.println(F("message_to_tx: "));
@@ -224,7 +182,7 @@ struct temperatureStep{
             tempValueM[busR][devR] += temp;
             tempSamplesM[busR][devR]++;
             devR++;  
-            Serial.println(temp);
+            if (DEBUG) Serial.println(temp);
           }
           else {busR++; devR=0;} 
         }
@@ -265,9 +223,6 @@ void resetTemperatures(){
 }
 
 /********FIN contador step *************/
-
-
-
 
 
 #endif

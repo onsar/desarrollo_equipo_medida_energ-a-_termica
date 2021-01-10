@@ -82,7 +82,7 @@ void loop() {
 
   uint32_t current_time= millis();
 
- 
+  if (current_time < t_last_tx) current_time = t_last_tx;
   if ((current_time - t_last_tx) > 10000){
     
     if(DEBUG)Serial.print(F("******Print LCD - sgs: "));

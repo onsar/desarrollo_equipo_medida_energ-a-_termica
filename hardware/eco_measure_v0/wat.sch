@@ -1270,12 +1270,8 @@ Wire Wire Line
 	10020 3170 9610 3170
 Text Label 9680 2970 0    60   ~ 0
 jA1
-Text Label 9680 3170 0    60   ~ 0
-vcc_5v
 Text Label 9680 2670 0    60   ~ 0
 GND
-Text Label 9680 2570 0    60   ~ 0
-vcc_5v
 Text Label 9680 3070 0    60   ~ 0
 jA0
 Text Label 8385 2370 2    60   ~ 0
@@ -1338,8 +1334,6 @@ Wire Wire Line
 	8050 3170 8460 3170
 Wire Notes Line
 	8460 2370 8460 3235
-Text Label 8210 3170 0    60   ~ 0
-vcc_5v
 Wire Wire Line
 	8050 2670 8460 2670
 Wire Wire Line
@@ -1420,4 +1414,10 @@ F 3 "~" H 7850 2470 50  0001 C CNN
 	1    7850 2470
 	-1   0    0    1   
 $EndComp
+Text Label 8210 3170 0    60   ~ 0
+vin_5V
+Text Label 9685 2570 0    60   ~ 0
+vin_5V
+Text Label 9685 3170 0    60   ~ 0
+vin_5V
 $EndSCHEMATC

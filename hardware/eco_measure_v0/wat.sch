@@ -130,21 +130,9 @@ Text Label 2510 2125 0    60   ~ 0
 vin_5V
 Text Label 1500 2125 0    60   ~ 0
 vcc_5v
-$Comp
-L nano1:NANO U1
-U 1 1 5D4E51E2
-P 5140 1830
-F 0 "U1" H 5490 2830 50  0000 C CNN
-F 1 "NANO" H 5140 2680 50  0000 C CNN
-F 2 "eco_power_v2:arduino_nano" H 4840 1030 50  0001 C CNN
-F 3 "DOCUMENTATION" H 4990 980 50  0001 C CNN
-	1    5140 1830
-	1    0    0    -1  
-$EndComp
 Text Label 5950 1430 0    60   ~ 0
 vin_5V
 NoConn ~ 4390 1330
-NoConn ~ 4390 1830
 NoConn ~ 5890 1130
 NoConn ~ 5890 1330
 NoConn ~ 5890 2330
@@ -254,8 +242,6 @@ Wire Wire Line
 	4390 2430 3785 2430
 Wire Wire Line
 	4390 2530 3785 2530
-Wire Wire Line
-	5890 2530 6310 2530
 Wire Notes Line
 	8955 1000 8955 1400
 Wire Wire Line
@@ -976,7 +962,7 @@ F 3 "" H 4920 4760 50  0000 C CNN
 	1    4920 4760
 	-1   0    0    -1  
 $EndComp
-Text Label 6410 4390 0    60   ~ 0
+Text Label 7610 4390 0    60   ~ 0
 D11
 $Comp
 L wat-rescue:R R4
@@ -1022,7 +1008,7 @@ F 3 "" H 6150 4760 50  0000 C CNN
 	1    6150 4760
 	-1   0    0    -1  
 $EndComp
-Text Label 7620 4390 0    60   ~ 0
+Text Label 8800 4390 0    60   ~ 0
 D12
 $Comp
 L wat-rescue:R R5
@@ -1068,8 +1054,6 @@ F 3 "" H 7360 4760 50  0000 C CNN
 	1    7360 4760
 	-1   0    0    -1  
 $EndComp
-Text Label 8810 4390 0    60   ~ 0
-D13
 $Comp
 L wat-rescue:R R6
 U 1 1 6004F3F6
@@ -1114,7 +1098,7 @@ F 3 "" H 8550 4760 50  0000 C CNN
 	1    8550 4760
 	-1   0    0    -1  
 $EndComp
-Text Label 5180 4390 0    60   ~ 0
+Text Label 6405 4390 0    60   ~ 0
 D10
 $Comp
 L wat-rescue:R R7
@@ -1166,8 +1150,6 @@ Text Label 3880 2430 0    60   ~ 0
 D11
 Text Label 3880 2530 0    60   ~ 0
 D12
-Text Label 5945 2530 0    60   ~ 0
-D13
 Text Label 5955 2230 0    60   ~ 0
 A0
 Text Label 5955 2130 0    60   ~ 0
@@ -1285,7 +1267,7 @@ jA4
 Text Label 9680 2370 0    60   ~ 0
 jA5
 Text Label 8415 3070 2    60   ~ 0
-jD13
+jD12
 Wire Notes Line
 	935  4390 935  4600
 Wire Notes Line
@@ -1321,13 +1303,13 @@ jD3
 Text Label 3415 4390 0    60   ~ 0
 jD4
 Text Label 5855 4390 0    60   ~ 0
-jD11
-Text Label 7060 4390 0    60   ~ 0
-jD12
-Text Label 8255 4390 0    60   ~ 0
-jD13
-Text Label 4625 4390 0    60   ~ 0
 jD10
+Text Label 7060 4390 0    60   ~ 0
+jD11
+Text Label 8255 4390 0    60   ~ 0
+jD12
+Text Label 4625 4390 0    60   ~ 0
+jD5
 Wire Notes Line
 	8150 2295 8150 3260
 Wire Wire Line
@@ -1345,11 +1327,11 @@ Wire Wire Line
 Wire Wire Line
 	8050 3070 8460 3070
 Text Label 8415 2970 2    60   ~ 0
-jD12
-Text Label 8415 2870 2    60   ~ 0
 jD11
-Text Label 8415 2770 2    60   ~ 0
+Text Label 8415 2870 2    60   ~ 0
 jD10
+Text Label 8360 2770 2    60   ~ 0
+jD5
 Text Label 8355 2670 2    60   ~ 0
 jD4
 Text Label 8355 2570 2    60   ~ 0
@@ -1420,4 +1402,22 @@ Text Label 9685 2570 0    60   ~ 0
 vin_5V
 Text Label 9685 3170 0    60   ~ 0
 vin_5V
+NoConn ~ 5890 2530
+$Comp
+L wat-rescue:NANO-nano1 U1
+U 1 1 5D4E51E2
+P 5140 1830
+F 0 "U1" H 5490 2830 50  0000 C CNN
+F 1 "NANO" H 5140 2680 50  0000 C CNN
+F 2 "eco_power_v2:arduino_nano" H 4840 1030 50  0001 C CNN
+F 3 "DOCUMENTATION" H 4990 980 50  0001 C CNN
+	1    5140 1830
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4390 1830 3785 1830
+Text Label 3880 1830 0    60   ~ 0
+D5
+Text Label 5235 4390 0    60   ~ 0
+D5
 $EndSCHEMATC

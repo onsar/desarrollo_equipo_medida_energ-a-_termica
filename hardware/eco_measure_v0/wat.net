@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/onsar/git/onsar/desarrollo_equipo_medida_energ-a-_termica/hardware/eco_measure_v0/wat.sch)
-    (date "lun 18 ene 2021 18:09:15 CET")
+    (date "vie 22 ene 2021 13:25:03 CET")
     (tool "Eeschema 5.0.2+dfsg1-1")
     (sheet (number 1) (name /) (tstamps /)
       (title_block

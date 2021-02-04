@@ -3,7 +3,7 @@
 #define contador_pcint_h
 
 #define MAXTIME 4294967295
-#define REBOUNDTIME 10
+#define REBOUNDTIME 60
 
 #include <YetAnotherPcInt.h>
 
@@ -61,9 +61,10 @@ static void PinListener::changed(PinListener* _this, bool pinstate) {
 }
 
 PinListener monitored_pins[] = {
-  {4,"e1",0,MAXTIME},
-  {7,"e2",0,MAXTIME},
-  {8,"e3",0,MAXTIME},
+  {2,"e4",0,MAXTIME},
+  {3,"e3",0,MAXTIME},
+  {4,"e2",0,MAXTIME},
+  {5,"e1",0,MAXTIME},
 };
 
 const uint8_t pcintPins = sizeof(monitored_pins)/sizeof(*monitored_pins);

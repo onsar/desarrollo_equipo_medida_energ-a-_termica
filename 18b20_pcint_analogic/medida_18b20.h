@@ -7,9 +7,9 @@
 // ******** CONFIGURACION DE LOS BUSES DE 18B20   ********
 // *******************************************************
 
-#define WIRE_0 17 // A3
-#define WIRE_1 18 // A4
-#define WIRE_2 19 // A5
+#define WIRE_0 12 // A3
+#define WIRE_1 11 // A4
+#define WIRE_2 10 // A5
 
 
 // *******************************************************

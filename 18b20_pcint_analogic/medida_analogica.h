@@ -8,7 +8,7 @@ struct PinRead {
     
   uint8_t number;
   const char* name;
-  uint8_t scale;
+  uint16_t scale;
   uint32_t value;
   uint16_t samples;
   
@@ -24,9 +24,14 @@ struct PinRead {
 };
 
 PinRead analogicPins[] = {
-  {14,"a1",60,0,0},
-  {15,"a2",60,0,0},
-  {16,"a3",60,0,0},
+  {14,"a1",5000,0,0},
+  {15,"a2",5000,0,0},
+  {16,"a3",5000,0,0},
+  {17,"a4",5000,0,0},
+  {18,"a5",5000,0,0},
+  {19,"a6",5000,0,0},
+  {20,"a7",5000,0,0},
+  {21,"a8",5000,0,0},
 };
 
 const uint8_t nAnalogicPins = sizeof(analogicPins)/sizeof(*analogicPins);
@@ -39,7 +44,7 @@ void buildAnalogicMessage() {
     message_to_tx += analogicPins[i].name;
     message_to_tx += ":";
     // analogicPins[i].scale
-    message_to_tx += String(analogicPins[i].value * analogicPins[i].scale / analogicPins[i].samples / 1023);
+    message_to_tx += String((analogicPins[i].value / analogicPins[i].samples)* analogicPins[i].scale  / 1023);
     analogicPins[i].value = 0;
     analogicPins[i].samples = 0;
     if (i != (nAnalogicPins -1)) {message_to_tx +=",";} 

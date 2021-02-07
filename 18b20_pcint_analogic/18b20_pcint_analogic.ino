@@ -49,6 +49,8 @@ La medida de temperatura se hace con sensores ds18b20
 
 #define BPS 115200
 
+#define TX_PERIOD 10000
+
 #include "contador_pcint.h"
 
 #include "medida_18b20.h"
@@ -61,13 +63,12 @@ uint32_t t_last_tx;
 void setup() {
 
   Serial.begin(BPS);
-  Serial.println(F("Inicio medida de temperatura y caudal por pulsos"));
+  if(DEBUG)Serial.println(F("Measurement start "));
+  if(DEBUG)Serial.println(F("temperature, flow rate and analog values "));
 
   temperatureSensorsBegin();
 
-  delay(1000);
-
-  contadorPcintSetup();
+  pcintCounterSetup();
 
   t_last_tx= millis();
 
@@ -83,15 +84,15 @@ void loop() {
   uint32_t current_time= millis();
 
   if (current_time < t_last_tx) current_time = t_last_tx;
-  if ((current_time - t_last_tx) > 10000){
+  if ((current_time - t_last_tx) > TX_PERIOD){
     
-    if(DEBUG)Serial.print(F("******Print LCD - sgs: "));
+    if(DEBUG)Serial.print(F("****** TX- sgs: "));
     if(DEBUG)Serial.println(millis() / 1000);
     
     t_last_tx = current_time;
 
-    AnalogicStep.next_task=1; //imprimir resultados
-    CounterStep.next_task=1; //imprimir resultados
-    TemperatureStep.next_task=3; //imprimir resultados
+    AnalogicStep.next_task=1;    //Transmit the values of the parameters 
+    CounterStep.nextTask=1;      //Transmit the values of the parameters 
+    TemperatureStep.nextTask=3;  //Transmit the values of the parameters 
   }
 }
